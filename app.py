@@ -17,7 +17,7 @@ app.add_middleware(
 song_db = SongDatabase()
 
 @app.get("/song/{song_id}")
-def get_song(song_id: int):
+def get_song(song_id: str):
     song = song_db.get_song_by_id(song_id)
     if song:
         return song
@@ -59,5 +59,3 @@ def get_more_tempo_song(energy: float, tempo: float):
     return {"error": "No song with more tempo found"}
 
 
-a = get_less_tempo_song(0.5, 0.4)
-print(a)
