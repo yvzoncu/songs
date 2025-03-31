@@ -59,3 +59,5 @@ def get_more_tempo_song(energy: float, tempo: float):
     return {"error": "No song with more tempo found"}
 
 
+a = get_less_tempo_song(0.5, 0.4)
+print(a)
