@@ -58,4 +58,8 @@ def get_more_tempo_song(energy: float, tempo: float):
         return song
     return {"error": "No song with more tempo found"}
 
+@app.get("/song/hi")
+def get_hi():
+    return {"app is working"}
+
 
