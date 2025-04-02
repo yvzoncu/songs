@@ -9,6 +9,7 @@ load_dotenv()
 
 Base = declarative_base()
 
+
 class Song(Base):
     __tablename__ = "subtracks"
     id = Column(Integer, primary_key=True, index=True)
@@ -16,6 +17,7 @@ class Song(Base):
     name = Column(String, nullable=False)
     energy = Column(Float, nullable=False)
     normalized_tempo = Column(Float, nullable=False)
+
 
 class SongSchema(BaseModel):
     id: str
@@ -28,6 +30,22 @@ class SongSchema(BaseModel):
     class Config:
         from_attributes = True
 
+
+class MoodText(BaseModel):
+    title: str
+    explanation: str
+
+    class Config:
+        from_attributes = True
+
+
+class MoodPicture(BaseModel):
+    url: str
+
+    class Config:
+        from_attributes = True
+
+
 class SongDatabase:
     def __init__(self):
         db_user = os.getenv('DB_USER')
@@ -39,10 +57,17 @@ class SongDatabase:
         SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
         self.session = SessionLocal()
 
-    def _fetch_song(self, query):
+    def _fetch_song(self, query, item_type):
         try:
             result = self.session.execute(text(query)).fetchone()
-            return SongSchema(**result._asdict()) if result else None
+            if result:
+                if item_type == 'song':
+                    return SongSchema(**result._asdict())
+                elif item_type == 'mood':
+                    return MoodText(**result._asdict())
+                elif item_type == 'picture':
+                    return MoodPicture(**result._asdict())
+            return None
         except Exception as e:
             print(f"Database error: {e}")
             return None
@@ -55,7 +80,7 @@ class SongDatabase:
             ORDER BY distance ASC
             LIMIT 1
         """
-        return self._fetch_song(query)
+        return self._fetch_song(query, 'song')
 
     def get_less_energy_song(self, energy, tempo):
         query = f"""
@@ -66,7 +91,7 @@ class SongDatabase:
             ORDER BY distance ASC
             LIMIT 1
         """
-        return self._fetch_song(query)
+        return self._fetch_song(query, 'song')
 
     def get_less_tempo_song(self, energy, tempo):
         query = f"""
@@ -77,7 +102,7 @@ class SongDatabase:
             ORDER BY distance ASC
             LIMIT 1
         """
-        return self._fetch_song(query)
+        return self._fetch_song(query, 'song')
 
     def get_more_energy_song(self, energy, tempo):
         query = f"""
@@ -88,7 +113,7 @@ class SongDatabase:
             ORDER BY distance ASC
             LIMIT 1
         """
-        return self._fetch_song(query)
+        return self._fetch_song(query, 'song')
 
     def get_more_tempo_song(self, energy, tempo):
         query = f"""
@@ -99,7 +124,25 @@ class SongDatabase:
             ORDER BY distance ASC
             LIMIT 1
         """
-        return self._fetch_song(query)
+        return self._fetch_song(query, 'song')
+
+    def get_mood_text(self, energy, tempo):
+        query = f"""
+            SELECT title, explanation
+            FROM moods
+            WHERE tempo = {tempo} and energy = {energy}
+            LIMIT 1
+        """
+        return self._fetch_song(query, 'mood')
+
+    def get_mood_picture(self, energy, tempo):
+        query = f"""
+            SELECT url
+            FROM mood_pictures
+            WHERE tempo = {tempo} and energy = {energy}
+            LIMIT 1
+        """
+        return self._fetch_song(query, 'picture')
 
     def get_song_by_id(self, id):
         query = f"""
@@ -108,4 +151,9 @@ class SongDatabase:
             WHERE id = '{id}'
             LIMIT 1
         """
-        return self._fetch_song(query)
+        return self._fetch_song(query, 'song')
+
+
+a = SongDatabase()
+m= a.get_mood_picture(0.5, 0.5)
+print(m)

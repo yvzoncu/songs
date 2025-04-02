@@ -53,6 +53,22 @@ def get_more_tempo_song(energy: float, tempo: float):
     return {"error": "No song with more tempo found"}
 
 
+@app.get("/song/mood_text")
+def get_mood_text(energy: float, tempo: float):
+    mood = song_db.get_mood_text(energy, tempo)
+    if mood:
+        return mood
+    return {"error": "No mood text found"}
+
+
+@app.get("/song/mood_picture")
+def get_mood_text(energy: float, tempo: float):
+    picture = song_db.get_mood_picture(energy, tempo)
+    if picture:
+        return picture
+    return {"error": "No mood picture found"}
+
+
 @app.get("/song/{song_id}")
 def get_song(song_id: str):
     song = song_db.get_song_by_id(song_id)
