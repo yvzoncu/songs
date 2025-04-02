@@ -16,12 +16,6 @@ app.add_middleware(
 
 song_db = SongDatabase()
 
-@app.get("/song/{song_id}")
-def get_song(song_id: str):
-    song = song_db.get_song_by_id(song_id)
-    if song:
-        return song
-    return {"error": "Song not found"}
 
 @app.get("/song/recommend")
 def recommend_song(energy: float, tempo: float):
@@ -58,8 +52,12 @@ def get_more_tempo_song(energy: float, tempo: float):
         return song
     return {"error": "No song with more tempo found"}
 
-@app.get("/song/hi")
-def get_hi():
-    return {"app is working"}
+
+@app.get("/song/{song_id}")
+def get_song(song_id: str):
+    song = song_db.get_song_by_id(song_id)
+    if song:
+        return song
+    return {"error": "Song not found"}
 
 
